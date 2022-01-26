@@ -1,4 +1,4 @@
-package com.battybuilds.webclientoauth2;
+package com.battybuilds.webclientoauth2.config;
 
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Configuration;

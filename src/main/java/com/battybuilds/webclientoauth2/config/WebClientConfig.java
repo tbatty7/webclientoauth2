@@ -1,4 +1,4 @@
-package com.battybuilds.webclientoauth2;
+package com.battybuilds.webclientoauth2.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
