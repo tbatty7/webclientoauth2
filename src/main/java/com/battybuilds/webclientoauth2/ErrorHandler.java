@@ -13,8 +13,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 public class ErrorHandler {
 
     @ExceptionHandler(WebClientResponseException.class)
-    public ResponseEntity<WokeResponse> handleDmppsException(WebClientResponseException ex) {
-        log.error("DMPPS threw error with status: [{}] body: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+    public ResponseEntity<WokeResponse> handleBackendException(WebClientResponseException ex) {
+        log.error("Backend threw error with status: [{}] body: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
         return getErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "WAKEUP", ex.getMessage());
     }
 
