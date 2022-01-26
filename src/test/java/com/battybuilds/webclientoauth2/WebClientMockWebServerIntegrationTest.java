@@ -64,7 +64,7 @@ class WebClientMockWebServerIntegrationTest {
     @Configuration
     public static class TestConfig {
         @Bean(name = "wokeWebClient")
-        WebClient dmppsWebClient() {
+        WebClient xyzWebClient() {
             HttpUrl url = mockServer.url("/");
             WebClient webClient = WebClient.create(url.toString());
             return webClient;
