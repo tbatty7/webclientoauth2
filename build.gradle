@@ -27,11 +27,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
 	testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
