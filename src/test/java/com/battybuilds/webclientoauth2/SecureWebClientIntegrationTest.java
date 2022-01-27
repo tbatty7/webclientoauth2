@@ -6,7 +6,6 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -60,7 +59,7 @@ class SecureWebClientIntegrationTest {
         mockServer.shutdown();
     }
 
-    @Test
+//    @Test
     void successResponse() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder()
                 .alarm1("Time to get up")
@@ -75,7 +74,7 @@ class SecureWebClientIntegrationTest {
         verify200Results(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
     }
 
-    @Test
+    //    @Test
     void handles500ErrorsFromBackendServer() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
