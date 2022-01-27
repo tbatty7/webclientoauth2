@@ -26,18 +26,18 @@ import reactor.netty.transport.ProxyProvider;
 @Configuration
 public class OAuth2WebClientConfig {
 
-    private static final String AZURE_TOKEN_URI = "https://login.microsoftonline.com/azure.onmicrosoft.com/oauth2/token";
+    private static String azureTokenUrl;
     private static final String XYZ_REGISTRATION_ID = "xyz";
     private static final String ABC_REGISTRATION_ID = "abc";
     private final String azureClientId;
     private final String azureClientSecret;
     private final String abcBaseUrl;
-    private String springProfile;
+    private final String springProfile;
     private final String xyzResource;
-    private int xyzWebClientMaxMemorySize;
-    private int abcWebClientMaxMemorySize;
-    private String xyzBaseUrl;
-    private String abcResource;
+    private final int xyzWebClientMaxMemorySize;
+    private final int abcWebClientMaxMemorySize;
+    private final String xyzBaseUrl;
+    private final String abcResource;
 
     public OAuth2WebClientConfig(@Value("${xyz-resource}") String xyzResource,
                                  @Value("${azure-client-id}") String azureClientId,
@@ -47,7 +47,8 @@ public class OAuth2WebClientConfig {
                                  @Value("${spring.profiles.active}") String profile,
                                  @Value("${xyz-webClient-max-in-memory-size}") int xyzWebClientMaxMemorySize,
                                  @Value("${abc-webClient-max-in-memory-size}") int abcWebClientMaxMemorySize,
-                                 @Value("${abc-resource}") String abcResource)    {
+                                 @Value("${abc-resource}") String abcResource,
+                                 @Value("${azure-token-url}") String azureTokenUrl) {
         this.xyzResource = xyzResource;
         this.xyzBaseUrl = xyzBaseUrl;
         this.abcResource = abcResource;
@@ -57,6 +58,7 @@ public class OAuth2WebClientConfig {
         springProfile = profile;
         this.xyzWebClientMaxMemorySize = xyzWebClientMaxMemorySize;
         this.abcWebClientMaxMemorySize = abcWebClientMaxMemorySize;
+        this.azureTokenUrl = azureTokenUrl;
     }
 
     @Bean(name = "abcWebClient")
@@ -99,7 +101,7 @@ public class OAuth2WebClientConfig {
     private ClientRegistration xyzCredentials() {
         return ClientRegistration
                 .withRegistrationId(XYZ_REGISTRATION_ID)
-                .tokenUri(AZURE_TOKEN_URI)
+                .tokenUri(azureTokenUrl)
                 .clientId(azureClientId)
                 .clientSecret(azureClientSecret)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -109,7 +111,7 @@ public class OAuth2WebClientConfig {
     private ClientRegistration abcCredentials() {
         return ClientRegistration
                 .withRegistrationId(ABC_REGISTRATION_ID)
-                .tokenUri(AZURE_TOKEN_URI)
+                .tokenUri(azureTokenUrl)
                 .clientId(azureClientId)
                 .clientSecret(azureClientSecret)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)

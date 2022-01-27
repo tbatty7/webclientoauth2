@@ -13,9 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,9 +28,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @SpringBootTest
+@TestPropertySource(properties = {"spring.main.allow-bean-definition-overriding=true"})
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("local")
-class WebClientIntegrationTest {
+@ContextConfiguration(classes = {Webclientoauth2Application.class})
+class SecureWebClientIntegrationTest {
 
     public static MockWebServer mockServer;
 
@@ -51,8 +51,8 @@ class WebClientIntegrationTest {
     }
 
     @DynamicPropertySource
-    static void backendProperties(DynamicPropertyRegistry registry) {
-        registry.add("base-url", () -> mockServer.url("/").toString());
+    static void neo4jProperties(DynamicPropertyRegistry registry) {
+        registry.add("abc-base-url", () -> mockServer.url("/").toString());
     }
 
     @AfterAll
@@ -95,7 +95,7 @@ class WebClientIntegrationTest {
 
     private ResultActions executeRequest() throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders
-                .get("/v1/alarms")
+                .get("/v2/alarms")
                 .header("Identification-No", "app-id")
                 .header("Authorization", "Bearer 123"));
     }
