@@ -3,6 +3,7 @@ package com.battybuilds.webclientoauth2.service;
 
 import com.battybuilds.webclientoauth2.AlarmRequest;
 import com.battybuilds.webclientoauth2.WokeResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,15 +13,17 @@ import java.time.Duration;
 
 @Service
 public class WokeService {
-    private WebClient webClient;
+    private final WebClient webClient;
+    private final String baseUrl;
 
-    public WokeService(WebClient wokeWebClient) {
+    public WokeService(WebClient wokeWebClient, @Value("${base-url}") String baseUrl) {
         this.webClient = wokeWebClient;
+        this.baseUrl = baseUrl;
     }
 
     public WokeResponse getAlarms() {
         Mono<WokeResponse> wokeResponseMono = webClient.get()
-                .uri("/api/clock/alarms")
+                .uri(baseUrl + "/api/clock/alarms")
                 .header("Identification-Id", "1234")
                 .retrieve()
                 .bodyToMono(WokeResponse.class);
