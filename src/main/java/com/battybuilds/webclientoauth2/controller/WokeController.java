@@ -1,5 +1,6 @@
-package com.battybuilds.webclientoauth2;
+package com.battybuilds.webclientoauth2.controller;
 
+import com.battybuilds.webclientoauth2.WokeResponse;
 import com.battybuilds.webclientoauth2.service.WokeService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

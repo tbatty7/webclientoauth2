@@ -24,52 +24,39 @@ import reactor.netty.tcp.TcpClient;
 import reactor.netty.transport.ProxyProvider;
 
 @Configuration
-public class OAuth2ClientConfig {
+public class OAuth2WebClientConfig {
 
     private static final String AZURE_TOKEN_URI = "https://login.microsoftonline.com/azure.onmicrosoft.com/oauth2/token";
     private static final String XYZ_REGISTRATION_ID = "xyz";
     private static final String ABC_REGISTRATION_ID = "abc";
     private final String azureClientId;
     private final String azureClientSecret;
-    private final String apimBaseUrl;
+    private final String abcBaseUrl;
     private String springProfile;
     private final String xyzResource;
     private int xyzWebClientMaxMemorySize;
     private int abcWebClientMaxMemorySize;
+    private String xyzBaseUrl;
     private String abcResource;
 
-    public OAuth2ClientConfig(@Value("${xyz-resource}") String xyzResource,
-                              @Value("${azure-client-id}") String azureClientId,
-                              @Value("${azure-client-secret}") String azureClientSecret,
-                              @Value("${apim-base-url}") String apimBaseUrl,
-                              @Value("${spring.profiles.active}") String profile,
-                              @Value("${xyz-webClient-max-in-memory-size}") int xyzWebClientMaxMemorySize,
-                              @Value("${abc-webClient-max-in-memory-size}") int abcWebClientMaxMemorySize,
-                              @Value("${abc-resource}") String abcResource)    {
+    public OAuth2WebClientConfig(@Value("${xyz-resource}") String xyzResource,
+                                 @Value("${azure-client-id}") String azureClientId,
+                                 @Value("${azure-client-secret}") String azureClientSecret,
+                                 @Value("${abc-base-url}") String abcBaseUrl,
+                                 @Value("${xyz-base-url}") String xyzBaseUrl,
+                                 @Value("${spring.profiles.active}") String profile,
+                                 @Value("${xyz-webClient-max-in-memory-size}") int xyzWebClientMaxMemorySize,
+                                 @Value("${abc-webClient-max-in-memory-size}") int abcWebClientMaxMemorySize,
+                                 @Value("${abc-resource}") String abcResource)    {
         this.xyzResource = xyzResource;
+        this.xyzBaseUrl = xyzBaseUrl;
         this.abcResource = abcResource;
         this.azureClientId = azureClientId;
         this.azureClientSecret = azureClientSecret;
-        this.apimBaseUrl = apimBaseUrl;
+        this.abcBaseUrl = abcBaseUrl;
         springProfile = profile;
         this.xyzWebClientMaxMemorySize = xyzWebClientMaxMemorySize;
         this.abcWebClientMaxMemorySize = abcWebClientMaxMemorySize;
-    }
-
-    @Bean(name = "xyzWebClient")
-    WebClient xyzWebClient(ReactiveClientRegistrationRepository clientRegistrations) {
-        AzureTokenResponseClient azureTokenResponseClient =
-                new AzureTokenResponseClient(xyzResource, connectorForProxyAndTimeout());
-
-        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(xyzWebClientMaxMemorySize)).build();
-
-        return WebClient.builder()
-                .exchangeStrategies(exchangeStrategies)
-                .baseUrl(apimBaseUrl)
-                .clientConnector(connectorForProxyAndTimeout())
-                .filter(setUpOAuth2(clientRegistrations, azureTokenResponseClient, XYZ_REGISTRATION_ID))
-                .build();
     }
 
     @Bean(name = "abcWebClient")
@@ -82,9 +69,25 @@ public class OAuth2ClientConfig {
 
         return WebClient.builder()
                 .exchangeStrategies(exchangeStrategies)
-                .baseUrl(apimBaseUrl)
+                .baseUrl(abcBaseUrl)
                 .clientConnector(connectorForProxyAndTimeout())
                 .filter(setUpOAuth2(clientRegistrations, azureTokenResponseClient, ABC_REGISTRATION_ID))
+                .build();
+    }
+
+    @Bean(name = "xyzWebClient")
+    WebClient xyzWebClient(ReactiveClientRegistrationRepository clientRegistrations) {
+        AzureTokenResponseClient azureTokenResponseClient =
+                new AzureTokenResponseClient(xyzResource, connectorForProxyAndTimeout());
+
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(xyzWebClientMaxMemorySize)).build();
+
+        return WebClient.builder()
+                .exchangeStrategies(exchangeStrategies)
+                .baseUrl(xyzBaseUrl)
+                .clientConnector(connectorForProxyAndTimeout())
+                .filter(setUpOAuth2(clientRegistrations, azureTokenResponseClient, XYZ_REGISTRATION_ID))
                 .build();
     }
 
