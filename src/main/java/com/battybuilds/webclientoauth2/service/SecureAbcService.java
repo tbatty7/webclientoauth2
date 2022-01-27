@@ -16,7 +16,7 @@ public class SecureAbcService {
         this.webClient = abcWebClient;
     }
 
-    public WokeResponse getAlarms() {
+    public WokeResponse getAlarmsSecurely() {
         Mono<WokeResponse> wokeResponseMono = webClient.get()
                 .uri("/api/clock/alarms")
                 .header("Identification-Id", "1234")
