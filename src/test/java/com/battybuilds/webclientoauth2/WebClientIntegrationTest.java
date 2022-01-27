@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("local")
 @ContextConfiguration(classes = {Webclientoauth2Application.class})
-class WebClientMockWebServerIntegrationTest {
+class WebClientIntegrationTest {
 
     public static MockWebServer mockServer;
 
