@@ -77,7 +77,7 @@ class SecureWebClientIntegrationTest {
 
         ResultActions resultActions = executeRequest();
 
-        verify200Results(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
+        assertCorrectResponse(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
 
         assertThat(mockServer.getRequestCount()).isEqualTo(2);
         RecordedRequest recordedTokenRequest = mockServer.takeRequest();
@@ -89,7 +89,7 @@ class SecureWebClientIntegrationTest {
         assertThat(recordedAbcRequest.getMethod()).isEqualTo("GET");
     }
 
-    //    @Test
+    @Test
     void handles500ErrorsFromBackendServer() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
@@ -97,7 +97,7 @@ class SecureWebClientIntegrationTest {
 
         ResultActions resultActions = executeRequest();
 
-        verify200Results(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
+        assertCorrectResponse(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
     }
 
     private void mockTokenAndBackendEndpoint(int responseCode, String body) {
@@ -122,19 +122,7 @@ class SecureWebClientIntegrationTest {
 
         return new MockResponse().setResponseCode(200)
                 .setBody(tokenResponse)
-                .addHeader("Content-Type", "application/json; charset=utf-8")
-                .addHeader("Cache-Control", "no-store, no-cache")
-                .addHeader("Pragma", "no-cache")
-                .addHeader("Expires", -1)
-                .addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-                .addHeader("X-Content-Type-Options", "nosniff")
-                .addHeader("P3P", "CP=\"DSP CUR OTPi IND OTRi ONL FIN\"")
-                .addHeader("x-ms-request-id", "038fa09b-ef2e-4574-b0c8-96a3f2099800")
-                .addHeader("x-ms-ests-server", "2.1.12261.22 - EUS ProdSlices")
-                .addHeader("Set-Cookie", "fpc=Ak0izF_GI7ZPmDum3vA5wLyvDvVdAQAAAHjfhNkOAAAA; expires=Sat, 26-Feb-2022 18:46:17 GMT; path=/; secure; HttpOnly; SameSite=None")
-                .addHeader("Set-Cookie", "x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly")
-                .addHeader("Set-Cookie", "stsservicecookie=estsfd; path=/; secure; samesite=none; httponly")
-                .addHeader("Date", "Thu, 27 Jan 2022 18:46:16 GMT");
+                .addHeader("Content-Type", "application/json; charset=utf-8");
     }
 
     private ResultActions executeRequest() throws Exception {
@@ -144,7 +132,7 @@ class SecureWebClientIntegrationTest {
                 .header("Authorization", "Bearer 123"));
     }
 
-    private void verify200Results(ResultActions resultActions, int status, String... message) throws Exception {
+    private void assertCorrectResponse(ResultActions resultActions, int status, String... message) throws Exception {
         resultActions
                 .andDo(print())
                 .andExpect(status().is(status));
