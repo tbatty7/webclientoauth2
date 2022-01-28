@@ -12,9 +12,10 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 public class AlarmRequest {
-    int year;
-    int month;
-    int day;
-    int hour;
+    @NotNull(message = "year is required")
+    Integer year;
+    Integer month;
+    Integer day;
+    Integer hour;
     String message;
 }
