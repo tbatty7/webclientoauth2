@@ -77,9 +77,9 @@ class SecureWebClientIntegrationTest {
 
         ResultActions resultActions = executeRequest();
 
+        assertThat(mockServer.getRequestCount()).isEqualTo(3);
         assertCorrectResponse(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
 
-        assertThat(mockServer.getRequestCount()).isEqualTo(2);
         RecordedRequest recordedTokenRequest = mockServer.takeRequest();
         assertThat(recordedTokenRequest.getPath()).isEqualTo("/token");
         String expectedTokenRequestBody = "[size=74 text=grant_type=client_credentials&client_id=456&client_secret=abc&re…]";
@@ -93,6 +93,7 @@ class SecureWebClientIntegrationTest {
     void handles500ErrorsFromBackendServer() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
+        mockTokenCall();
         mockTokenAndBackendEndpoint(500, responseBody);
 
         ResultActions resultActions = executeRequest();
@@ -101,12 +102,15 @@ class SecureWebClientIntegrationTest {
     }
 
     private void mockTokenAndBackendEndpoint(int responseCode, String body) {
-        MockResponse mockTokenResponse = createMockTokenResponse();
         MockResponse mockResponse = new MockResponse().setResponseCode(responseCode)
                 .setBody(body)
                 .addHeader("Content-Type", "application/json");
-        mockServer.enqueue(mockTokenResponse);
         mockServer.enqueue(mockResponse);
+    }
+
+    private void mockTokenCall() {
+        MockResponse mockTokenResponse = createMockTokenResponse();
+        mockServer.enqueue(mockTokenResponse);
     }
 
     private MockResponse createMockTokenResponse() {
