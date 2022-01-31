@@ -2,7 +2,6 @@
 
 ### To Do:
 
-- Replace deprecated tcpConfiguration method with new one
 - I need to do more testing to confirm I can pass properties to bootRun
 
 ### Done:

@@ -20,13 +20,12 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 import reactor.netty.transport.ProxyProvider;
 
 @Configuration
 public class OAuth2WebClientConfig {
 
-    private static String azureTokenUrl;
+    private final String azureTokenUrl;
     private static final String XYZ_REGISTRATION_ID = "xyz";
     private static final String ABC_REGISTRATION_ID = "abc";
     private final String azureClientId;
@@ -145,21 +144,17 @@ public class OAuth2WebClientConfig {
 
     private ClientHttpConnector connectorForProxyAndTimeout() {
         HttpClient httpClient = HttpClient.create()
-                .tcpConfiguration(client ->
-                {
-                    TcpClient tcpClient = client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
-                            .doOnConnected(conn -> conn
-                                    .addHandlerLast(new ReadTimeoutHandler(60))
-                                    .addHandlerLast(new WriteTimeoutHandler(60))
-                            );
-                    if ("proxy".equals(springProfile)) {
-                        tcpClient = tcpClient.proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
-                                .host("internet.dorf.com")
-                                .port(83)
-                        );
-                    }
-                    return tcpClient;
-                });
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
+                .doOnConnected(connection -> connection
+                        .addHandlerLast(new ReadTimeoutHandler(60))
+                        .addHandlerLast(new WriteTimeoutHandler(60)));
+
+        if ("proxy".equals(springProfile)) {
+            httpClient.proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
+                    .host("internet.dorf.com")
+                    .port(83));
+        }
+
         return new ReactorClientHttpConnector(httpClient.wiretap(true));
     }
 }
