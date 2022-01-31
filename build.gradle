@@ -78,3 +78,7 @@ tasks.register('printProps') {
 test {
 	systemProperties(System.getProperties())
 }
+
+bootRun {
+	properties { System.getProperties() }
+}

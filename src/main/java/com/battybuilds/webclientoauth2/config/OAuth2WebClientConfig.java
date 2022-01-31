@@ -152,7 +152,7 @@ public class OAuth2WebClientConfig {
                                     .addHandlerLast(new ReadTimeoutHandler(60))
                                     .addHandlerLast(new WriteTimeoutHandler(60))
                             );
-                    if ("local".equals(springProfile)) {
+                    if ("proxy".equals(springProfile)) {
                         tcpClient = tcpClient.proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
                                 .host("internet.dorf.com")
                                 .port(83)
