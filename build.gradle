@@ -33,8 +33,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
-	testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+	testImplementation 'com.squareup.okhttp3:okhttp:4.9.3'
+	testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
@@ -57,6 +57,7 @@ if (!utils.exists()) {
 			print "Unable to find ../analysis_utils."
 			print "Attempt to clone repo failed."
 			print "Are your proxy settings correct?"
+			print e.getMessage()
 		}
 	}
 }
@@ -66,4 +67,14 @@ if (utils.exists()) {
 } else {
 	print "Appears that ../analysis_utils has not been cloned."
 	print "Check your proxy settings?"
+}
+
+tasks.register('printProps') {
+	doLast {
+		println System.getProperties()
+	}
+}
+
+test {
+	systemProperties(System.getProperties())
 }
