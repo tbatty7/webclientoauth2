@@ -38,7 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {WebClientOAuth2Application.class})
 class SecureWebClientIntegrationTest {
 
-    public static MockWebServer mockServer;
+    public static MockWebServer mockAbcServer;
+    public static MockWebServer mockAuthServer;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -50,19 +51,21 @@ class SecureWebClientIntegrationTest {
 
     @BeforeAll
     static void beforeAll() throws IOException {
-        mockServer = new MockWebServer();
-        mockServer.start();
+        mockAbcServer = new MockWebServer();
+        mockAuthServer = new MockWebServer();
+        mockAbcServer.start();
     }
 
     @DynamicPropertySource
     static void backendUrlProperties(DynamicPropertyRegistry registry) {
-        registry.add("abc-base-url", () -> mockServer.url("/").toString());
-        registry.add("azure-token-url", () -> mockServer.url("/") + "/token");
+        registry.add("abc-base-url", () -> mockAbcServer.url("/").toString());
+        registry.add("azure-token-url", () -> mockAuthServer.url("/") + "/token");
     }
 
     @AfterAll
     static void afterAll() throws IOException {
-        mockServer.shutdown();
+        mockAbcServer.shutdown();
+        mockAuthServer.shutdown();
     }
 
     @Test
@@ -73,18 +76,19 @@ class SecureWebClientIntegrationTest {
                 .alarm3("Your boss is calling")
                 .build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
-        mockTokenAndBackendEndpoint(200, responseBody);
+        mockBackendEndpoint(200, responseBody);
 
         ResultActions resultActions = executeRequest();
 
-        assertThat(mockServer.getRequestCount()).isEqualTo(3);
+        assertThat(mockAbcServer.getRequestCount()).isEqualTo(2);
+        assertThat(mockAuthServer.getRequestCount()).isEqualTo(1);
         assertCorrectResponse(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
 
-        RecordedRequest recordedTokenRequest = mockServer.takeRequest();
+        RecordedRequest recordedTokenRequest = mockAuthServer.takeRequest();
         assertThat(recordedTokenRequest.getPath()).isEqualTo("/token");
         String expectedTokenRequestBody = "[size=74 text=grant_type=client_credentials&client_id=456&client_secret=abc&re…]";
         assertThat(recordedTokenRequest.getBody().readByteString().toString()).isEqualTo(expectedTokenRequestBody);
-        RecordedRequest recordedAbcRequest = mockServer.takeRequest();
+        RecordedRequest recordedAbcRequest = mockAbcServer.takeRequest();
         assertThat(recordedAbcRequest.getPath()).isEqualTo("/api/clock/alarms");
         assertThat(recordedAbcRequest.getMethod()).isEqualTo("GET");
     }
@@ -94,23 +98,25 @@ class SecureWebClientIntegrationTest {
         WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockTokenCall();
-        mockTokenAndBackendEndpoint(500, responseBody);
+        mockBackendEndpoint(500, responseBody);
 
         ResultActions resultActions = executeRequest();
 
+        assertThat(mockAbcServer.getRequestCount()).isEqualTo(1);
+        assertThat(mockAuthServer.getRequestCount()).isEqualTo(1);
         assertCorrectResponse(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
     }
 
-    private void mockTokenAndBackendEndpoint(int responseCode, String body) {
+    private void mockBackendEndpoint(int responseCode, String body) {
         MockResponse mockResponse = new MockResponse().setResponseCode(responseCode)
                 .setBody(body)
                 .addHeader("Content-Type", "application/json");
-        mockServer.enqueue(mockResponse);
+        mockAbcServer.enqueue(mockResponse);
     }
 
     private void mockTokenCall() {
         MockResponse mockTokenResponse = createMockTokenResponse();
-        mockServer.enqueue(mockTokenResponse);
+        mockAuthServer.enqueue(mockTokenResponse);
     }
 
     private MockResponse createMockTokenResponse() {

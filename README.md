@@ -3,7 +3,6 @@
 ### To Do:
 
 - I need to do more testing to confirm I can pass properties to bootRun
-- Refactor SecureWebClientIntegrationTest to have a separate MockWebServer for the Auth server
 
 ### Done:
 
