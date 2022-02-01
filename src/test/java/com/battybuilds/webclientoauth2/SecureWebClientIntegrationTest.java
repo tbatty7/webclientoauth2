@@ -34,8 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestPropertySource(properties = {"spring.main.allow-bean-definition-overriding=true"})
 @AutoConfigureMockMvc(addFilters = false)
-//@ActiveProfiles("local")  Profiles work differently now
-@ContextConfiguration(classes = {Webclientoauth2Application.class})
+//@ActiveProfiles("local")  Can be added if needed - still works
+@ContextConfiguration(classes = {WebClientOAuth2Application.class})
 class SecureWebClientIntegrationTest {
 
     public static MockWebServer mockServer;

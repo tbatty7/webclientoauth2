@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Webclientoauth2ApplicationTests {
+class WebClientOAuth2ApplicationTests {
 
 	@Test
 	void contextLoads() {
