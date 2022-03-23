@@ -151,7 +151,7 @@ public class OAuth2WebClientConfig {
 
         if ("proxy".equals(springProfile)) {
             httpClient.proxy(proxy -> proxy.type(ProxyProvider.Proxy.HTTP)
-                    .host("internet.dorf.com")
+                    .host("internet.myproxy.com")
                     .port(83));
         }
 
