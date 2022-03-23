@@ -62,43 +62,50 @@ class SecureWebClientIntegrationTest {
     }
 
     @Test
-    void successResponse() throws Exception {
+    void handles200SuccessResponse() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder()
                 .alarm1("Time to get up")
                 .alarm2("You're gonna be late")
                 .alarm3("Your boss is calling")
                 .build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
-        mockBackendEndpoint(200, responseBody);
-
-        ResultActions resultActions = executeRequest();
-
-        assertThat(mockAbcServer.getRequestCount()).isEqualTo(2);
-        assertThat(mockAuthServer.getRequestCount()).isEqualTo(1);
-        assertCorrectResponse(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
-
-        RecordedRequest recordedTokenRequest = mockAuthServer.takeRequest();
-        assertThat(recordedTokenRequest.getPath()).isEqualTo("/token");
-        String expectedTokenRequestBody = "[size=74 text=grant_type=client_credentials&client_id=456&client_secret=abc&re…]";
-        assertThat(recordedTokenRequest.getBody().readByteString().toString()).isEqualTo(expectedTokenRequestBody);
-        RecordedRequest recordedAbcRequest = mockAbcServer.takeRequest();
-        assertThat(recordedAbcRequest.getPath()).isEqualTo("/api/clock/alarms");
-        assertThat(recordedAbcRequest.getMethod()).isEqualTo("GET");
-        assertThat(recordedAbcRequest.getHeader("Authorization")).isEqualTo("Bearer mock-Token");
-    }
-
-    @Test
-    void handles500ErrorsFromBackendServer() throws Exception {
-        WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
-        String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockTokenCall();
-        mockBackendEndpoint(500, responseBody);
+        mockBackendEndpoint(200, responseBody);
 
         ResultActions resultActions = executeRequest();
 
         assertThat(mockAbcServer.getRequestCount()).isEqualTo(1);
         assertThat(mockAuthServer.getRequestCount()).isEqualTo(1);
+        assertCorrectResponse(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
+        assertAuthenticationServerWasCalledCorrectly(mockAuthServer.takeRequest());
+        assertAbcServerWasCalledCorrectly(mockAbcServer.takeRequest());
+    }
+
+    @Test
+    void handles500ErrorsFromAbcServer() throws Exception {
+        WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
+        String responseBody = objectMapper.writeValueAsString(wokeResponse);
+
+        mockBackendEndpoint(500, responseBody);
+
+        ResultActions resultActions = executeRequest();
+
+        assertThat(mockAbcServer.getRequestCount()).isEqualTo(2);
+        assertThat(mockAuthServer.getRequestCount()).isEqualTo(1);
         assertCorrectResponse(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
+    }
+
+
+    private void assertAbcServerWasCalledCorrectly(RecordedRequest recordedAbcRequest) {
+        assertThat(recordedAbcRequest.getMethod()).isEqualTo("GET");
+        assertThat(recordedAbcRequest.getPath()).isEqualTo("/api/clock/alarms");
+        assertThat(recordedAbcRequest.getHeader("Authorization")).isEqualTo("Bearer mock-Token");
+    }
+
+    private void assertAuthenticationServerWasCalledCorrectly(RecordedRequest recordedTokenRequest) {
+        assertThat(recordedTokenRequest.getPath()).isEqualTo("/token");
+        String expectedTokenRequestBody = "[size=74 text=grant_type=client_credentials&client_id=456&client_secret=abc&re…]";
+        assertThat(recordedTokenRequest.getBody().readByteString().toString()).isEqualTo(expectedTokenRequestBody);
     }
 
     private void mockBackendEndpoint(int responseCode, String body) {
