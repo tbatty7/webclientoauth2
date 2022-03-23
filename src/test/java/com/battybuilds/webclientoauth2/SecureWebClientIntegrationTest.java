@@ -84,6 +84,7 @@ class SecureWebClientIntegrationTest {
         RecordedRequest recordedAbcRequest = mockAbcServer.takeRequest();
         assertThat(recordedAbcRequest.getPath()).isEqualTo("/api/clock/alarms");
         assertThat(recordedAbcRequest.getMethod()).isEqualTo("GET");
+        assertThat(recordedAbcRequest.getHeader("Authorization")).isEqualTo("Bearer mock-Token");
     }
 
     @Test
