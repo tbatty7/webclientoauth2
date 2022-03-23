@@ -120,7 +120,7 @@ class SecureWebClientIntegrationTest {
                 "    \"expires_on\": \"1643312777\",\n" +
                 "    \"not_before\": \"1643308877\",\n" +
                 "    \"resource\": \"abc\",\n" +
-                "    \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik1yNS1BVWliZkJpaTdOZDFqQmViYXhib1hXMCIsImtpZCI6Ik1yNS1BVWliZkJpaTdOZDFqQmViYXhib1hXMCJ9.eyJhdWQiOiIzOGE1YjZiMi1lNTI5LTQwMGEtOWM2NC0wYTQ0Yjk2NDdhZWMiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jOTkwYmI3YS01MWY0LTQzOWItYmQzNi05YzA3ZmIxMDQxYzAvIiwiaWF0IjoxNjQzMzA4ODc3LCJuYmYiOjE2NDMzMDg4NzcsImV4cCI6MTY0MzMxMjc3NywiYWlvIjoiRTJaZ1lQaHFwSGt5dXNEOHZVdkZncDhGc3ozekFBPT0iLCJhcHBpZCI6IjM4YTViNmIyLWU1MjktNDAwYS05YzY0LTBhNDRiOTY0N2FlYyIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2M5OTBiYjdhLTUxZjQtNDM5Yi1iZDM2LTljMDdmYjEwNDFjMC8iLCJvaWQiOiIwZjBlNDViYi0xNzA2LTQzYWEtODE4Zi0xZjVmMTVmZTQzMjUiLCJyaCI6IjAuQVJJQWVydVF5ZlJSbTBPOU5wd0gteEJCd0xLMnBUZ3A1UXBBbkdRS1JMbGtldXdTQUFBLiIsInN1YiI6IjBmMGU0NWJiLTE3MDYtNDNhYS04MThmLTFmNWYxNWZlNDMyNSIsInRpZCI6ImM5OTBiYjdhLTUxZjQtNDM5Yi1iZDM2LTljMDdmYjEwNDFjMCIsInV0aSI6Im02Q1BBeTd2ZEVXd3lKYWo4Z21ZQUEiLCJ2ZXIiOiIxLjAifQ.HrN33Rx1yTq70nYhqIdiD3eDV0mnaRXVP4eYVoQCNaKMxjl6A105GQY2vVtE-rhuWZspPWi1miSO48sUOmVCHucyDvdekRkcpOKTOCtPA7VzOXwn0rM3pnflAtO1ri33P1RvbvlooOtqx2R2kR9bQFkOqpMux1_LGC9PVBBM0nIES_QiE64ARqlQXgYdmNFGzyasoCXonuDA5-22-JErxsNj8uEb9lWGT2wbwjHg62NayYobXPCRx4TxIrcEfxfryfE2u7oc2Tr_s-R6coLQ6_x9Zruwq6Z7Byb3X0flXpg3OEUiRUrSGtBv7DEQg-7QO2bPfeWTjsKLaa7rfDtj9g\"\n" +
+                "    \"access_token\": \"mock-Token\"\n" +
                 "}";
 
         return new MockResponse().setResponseCode(200)
