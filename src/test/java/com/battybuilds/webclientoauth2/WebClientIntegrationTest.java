@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class WebClientIntegrationTest {
 
     public static MockWebServer mockServer;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -61,11 +60,10 @@ class WebClientIntegrationTest {
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockExternalEndpoint(200, responseBody);
 
-        ResultActions resultActions = executeRequest();
+        ResultActions result = executeRequest();
 
         assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
-        verifyResults(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
-
+        verifyResults(result, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
     }
 
     @Test
@@ -74,10 +72,10 @@ class WebClientIntegrationTest {
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockExternalEndpoint(500, responseBody);
 
-        ResultActions resultActions = executeRequest();
+        ResultActions result = executeRequest();
 
         assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
-        verifyResults(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
+        verifyResults(result, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
     }
 
     @Test
