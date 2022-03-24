@@ -60,7 +60,7 @@ class WebClientIntegrationTest {
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockExternalEndpoint(200, responseBody);
 
-        ResultActions result = executeRequest();
+        ResultActions result = executeGetRequest();
 
         assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
         verifyResults(result, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
@@ -72,7 +72,7 @@ class WebClientIntegrationTest {
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockExternalEndpoint(500, responseBody);
 
-        ResultActions result = executeRequest();
+        ResultActions result = executeGetRequest();
 
         assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
         verifyResults(result, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
@@ -83,16 +83,16 @@ class WebClientIntegrationTest {
         mockExternalEndpoint(200, "{\"alarm1\": \"Hello World\"}");
         String requestBody = new ObjectMapper().writeValueAsString(AlarmRequest.builder().day(10).hour(10).month(10).year(1972).message("Hi").build());
 
-        ResultActions result = executePostRequest(requestBody, "app-id");
+        ResultActions result = executePostRequest(requestBody);
 
         assertBackendServerWasCalledCorrectlyForPOST(mockServer.takeRequest(5L, TimeUnit.SECONDS));
-        verifyResults(result, 200, "\"alarm1\":\"Hello World\"", "\"identificationNumber\":\"app-id\"");
+        verifyResults(result, 200, "\"alarm1\":\"Hello World\"");
     }
 
-    private ResultActions executePostRequest(String requestBody, String identificationNumber) throws Exception {
+    private ResultActions executePostRequest(String requestBody) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders
                 .post("/v1/alarm")
-                .header("Identification-No", identificationNumber)
+                .header("Identification-No", "app-id")
                 .header("Content-Type", "application/json")
                 .content(requestBody));
     }
@@ -116,7 +116,7 @@ class WebClientIntegrationTest {
         mockServer.enqueue(mockResponse);
     }
 
-    private ResultActions executeRequest() throws Exception {
+    private ResultActions executeGetRequest() throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders
                 .get("/v1/alarms")
                 .header("Identification-No", "app-id")
