@@ -36,9 +36,11 @@ class SecureWebClientIntegrationTest {
     private MockMvc mockMvc;
 
     @BeforeAll
-    static void beforeAll() {
+    static void beforeAll() throws IOException {
         mockAbcServer = new MockWebServer();
         mockAuthServer = new MockWebServer();
+        mockAbcServer.start();
+        mockAuthServer.start();
         assertThat(mockAbcServer.getPort()).isNotNull();
         assertThat(mockAuthServer.getPort()).isNotNull();
     }

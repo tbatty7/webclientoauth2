@@ -23,7 +23,7 @@ public class WebSecurityConfig {
     static JwtDecoder wrapJwtDecoderWithAudienceCheck(JwtDecoder jwtDecoder, String audience) {
         return token -> {
             Jwt jwt = jwtDecoder.decode(token);
-            if (!jwt.containsClaim(AUD) || !jwt.getClaimAsStringList(AUD).contains(audience)) {
+            if (!jwt.hasClaim(AUD) || !jwt.getClaimAsStringList(AUD).contains(audience)) {
                 String errorDescription = "Audience field does not match";
                 throw new OAuth2AuthenticationException(new BearerTokenError("invalid_resource", HttpStatus.FORBIDDEN,
                         errorDescription, DEFAULT_URI));
@@ -37,7 +37,7 @@ public class WebSecurityConfig {
 
         String audience = "audience1234";
 
-        private JwtDecoder jwtDecoderByIssuerUri;
+        private final JwtDecoder jwtDecoderByIssuerUri;
 
         public ResourceServerSecurityConfiguration(JwtDecoder jwtDecoderByIssuerUri) {
             this.jwtDecoderByIssuerUri = jwtDecoderByIssuerUri;
