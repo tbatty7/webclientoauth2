@@ -36,6 +36,6 @@ public class WokeService {
                 .retrieve()
                 .bodyToMono(WokeResponse.class);
 
-        return wokeResponseMono.block(Duration.ofSeconds(30));
+        return wokeResponseMono.block(Duration.ofSeconds(5));
     }
 }

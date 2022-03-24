@@ -52,7 +52,7 @@ class WebClientIntegrationTest {
     }
 
     @Test
-    void successResponse() throws Exception {
+    void handlesSuccessResponseForGET() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder()
                 .alarm1("Time to get up")
                 .alarm2("You're gonna be late")
@@ -63,40 +63,52 @@ class WebClientIntegrationTest {
 
         ResultActions resultActions = executeRequest();
 
-        verify200Results(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
-        RecordedRequest recordedRequest = mockServer.takeRequest();
-        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
-        assertThat(recordedRequest.getPath()).isEqualTo("/api/clock/alarms");
+        assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
+        verifyResults(resultActions, 200, "\"alarm1\":\"Time to get up\"", "\"alarm2\":\"You're gonna be late\"");
+
     }
 
     @Test
-    void handles500ErrorsFromBackendServer() throws Exception {
+    void handles500ErrorsFromBackendServerForGET() throws Exception {
         WokeResponse wokeResponse = WokeResponse.builder().error("What does that even mean?").build();
         String responseBody = objectMapper.writeValueAsString(wokeResponse);
         mockExternalEndpoint(500, responseBody);
 
         ResultActions resultActions = executeRequest();
-        mockServer.takeRequest();
-        verify200Results(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
+
+        assertBackendServerWasCalledCorrectlyForGET(mockServer.takeRequest());
+        verifyResults(resultActions, 500, "\"error\":\"500 Internal Server Error", "context: WAKEUP");
     }
 
     @Test
-    void forPOST_requestBodyIsCorrect() throws Exception {
+    void handlesSuccessResponseForPOST() throws Exception {
         mockExternalEndpoint(200, "{\"alarm1\": \"Hello World\"}");
         String requestBody = new ObjectMapper().writeValueAsString(AlarmRequest.builder().day(10).hour(10).month(10).year(1972).message("Hi").build());
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/alarm")
-                        .header("Identification-No", "app-id")
-                        .header("Authorization", "Bearer 123")
-                        .header("Content-Type", "application/json")
-                        .content(requestBody))
-                .andDo(print())
-                .andExpect(status().is(200));
-        RecordedRequest recordedRequest = mockServer.takeRequest(5L, TimeUnit.SECONDS);
-        assertThat(recordedRequest).as("Request not showing at MockWebServer").isNotNull();
+
+        ResultActions result = executePostRequest(requestBody, "app-id");
+
+        assertBackendServerWasCalledCorrectlyForPOST(mockServer.takeRequest(5L, TimeUnit.SECONDS));
+        verifyResults(result, 200, "\"alarm1\":\"Hello World\"", "\"identificationNumber\":\"app-id\"");
+    }
+
+    private ResultActions executePostRequest(String requestBody, String identificationNumber) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders
+                .post("/v1/alarm")
+                .header("Identification-No", identificationNumber)
+                .header("Content-Type", "application/json")
+                .content(requestBody));
+    }
+
+    private void assertBackendServerWasCalledCorrectlyForPOST(RecordedRequest recordedRequest) {
+        assertThat(recordedRequest).as("Request did not reach MockWebServer").isNotNull();
         assertThat(recordedRequest.getMethod()).isEqualTo("POST");
         String expectedRequestBody = "[text={\"year\":1972,\"month\":10,\"day\":10,\"hour\":10,\"message\":\"Hi\"}]";
         assertThat(recordedRequest.getBody().readByteString().toString()).isEqualTo(expectedRequestBody);
+    }
+
+    private void assertBackendServerWasCalledCorrectlyForGET(RecordedRequest recordedRequest) {
+        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
+        assertThat(recordedRequest.getPath()).isEqualTo("/api/clock/alarms");
     }
 
     private void mockExternalEndpoint(int responseCode, String body) {
@@ -113,7 +125,7 @@ class WebClientIntegrationTest {
                 .header("Authorization", "Bearer 123"));
     }
 
-    private void verify200Results(ResultActions resultActions, int status, String... message) throws Exception {
+    private void verifyResults(ResultActions resultActions, int status, String... message) throws Exception {
         resultActions
                 .andDo(print())
                 .andExpect(status().is(status));
