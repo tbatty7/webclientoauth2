@@ -89,24 +89,19 @@ class WebClientIntegrationTest {
         verifyResults(result, 200, "\"alarm1\":\"Hello World\"");
     }
 
+    private ResultActions executeGetRequest() throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders
+                .get("/v1/alarms")
+                .header("Identification-No", "app-id")
+                .header("Authorization", "Bearer 123"));
+    }
+
     private ResultActions executePostRequest(String requestBody) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders
                 .post("/v1/alarm")
                 .header("Identification-No", "app-id")
                 .header("Content-Type", "application/json")
                 .content(requestBody));
-    }
-
-    private void assertBackendServerWasCalledCorrectlyForPOST(RecordedRequest recordedRequest) {
-        assertThat(recordedRequest).as("Request did not reach MockWebServer").isNotNull();
-        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
-        String expectedRequestBody = "[text={\"year\":1972,\"month\":10,\"day\":10,\"hour\":10,\"message\":\"Hi\"}]";
-        assertThat(recordedRequest.getBody().readByteString().toString()).isEqualTo(expectedRequestBody);
-    }
-
-    private void assertBackendServerWasCalledCorrectlyForGET(RecordedRequest recordedRequest) {
-        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
-        assertThat(recordedRequest.getPath()).isEqualTo("/api/clock/alarms");
     }
 
     private void mockExternalEndpoint(int responseCode, String body) {
@@ -116,11 +111,17 @@ class WebClientIntegrationTest {
         mockServer.enqueue(mockResponse);
     }
 
-    private ResultActions executeGetRequest() throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders
-                .get("/v1/alarms")
-                .header("Identification-No", "app-id")
-                .header("Authorization", "Bearer 123"));
+    private void assertBackendServerWasCalledCorrectlyForGET(RecordedRequest recordedRequest) {
+        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
+        assertThat(recordedRequest.getPath()).isEqualTo("/api/clock/alarms");
+    }
+
+    private void assertBackendServerWasCalledCorrectlyForPOST(RecordedRequest recordedRequest) {
+        assertThat(recordedRequest).as("Request did not reach MockWebServer").isNotNull();
+        assertThat(recordedRequest.getPath()).isEqualTo("/api/clock/alarms");
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        String expectedRequestBody = "[text={\"year\":1972,\"month\":10,\"day\":10,\"hour\":10,\"message\":\"Hi\"}]";
+        assertThat(recordedRequest.getBody().readByteString().toString()).isEqualTo(expectedRequestBody);
     }
 
     private void verifyResults(ResultActions resultActions, int status, String... message) throws Exception {
