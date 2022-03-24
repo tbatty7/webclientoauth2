@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,14 +35,12 @@ class SecureWebClientIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    JwtDecoder jwtDecoder;
-
     @BeforeAll
-    static void beforeAll() throws IOException {
+    static void beforeAll() {
         mockAbcServer = new MockWebServer();
         mockAuthServer = new MockWebServer();
-        mockAbcServer.start();
+        assertThat(mockAbcServer.getPort()).isNotNull();
+        assertThat(mockAuthServer.getPort()).isNotNull();
     }
 
     @DynamicPropertySource
