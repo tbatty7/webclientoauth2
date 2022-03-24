@@ -41,8 +41,6 @@ class SecureWebClientIntegrationTest {
         mockAuthServer = new MockWebServer();
         mockAbcServer.start();
         mockAuthServer.start();
-        assertThat(mockAbcServer.getPort()).isNotNull();
-        assertThat(mockAuthServer.getPort()).isNotNull();
     }
 
     @DynamicPropertySource
